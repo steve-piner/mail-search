@@ -49,11 +49,29 @@ sub load {
     return;
 }
 
+sub xml_escape {
+    my $string = shift;
+    $string =~ s/([^-\n\t !\#\$\%\(\)\*\+,\.\~\/\:\;=\?\@\[\\\]\^_\`\{\|\}abcdefghijk
+lmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789])/'&#'.(ord($1)).';'/eg;
+    return $string;
+}
+
 sub _xml {
     my $self = shift;
     my $transform = shift;
-    my $xml;
-   
+    my @xml;
+    for my $header (keys %{$transform->{headers}}) {
+        push @xml, map {'<field name="header_' . xml_escape($header) . '">' . xml_escape($_) . "</field>\n"} @{$transform->{headers}{$header}};
+    }
+
+    for my $metadata (keys %{$transform->{metadata}}) {
+        my $value = $transform->{metadata}{$metadata};
+        push @xml, map {'<field name="metadata_' . xml_escape($metadata) . '">' . xml_escape($_) . "</field>\n"} ref($value) eq 'ARRAY' ? @{$value} : $value;
+    }
+
+    push @xml, '<field name="content">' . xml_escape($transform->{content}) . '</field>';
+    push @xml, '<field name="id">' . xml_escape($transform->{id}) . '</field>';
+    return '<doc>' . join('', @xml) . '</doc>';
 }
 
 sub start {

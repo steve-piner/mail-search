@@ -109,8 +109,8 @@ sub extract {
     my $data = shift;
 
     my $response = {
-        text => $self->_send_receive($self->_config->{'text port'}, $data->{message}),
-        metadata => decode_json($self->_send_receive($self->_config->{'metadata port'}, $data->{message})),
+        content => $self->_send_receive($self->_config->{'text port'}, $data),
+        metadata => decode_json($self->_send_receive($self->_config->{'metadata port'}, $data)),
     };
     return $response;
 }

@@ -29,13 +29,15 @@ sub _list_files {
 sub fetch {
     my $self = shift;
     return unless @{$self->_files};
-        
-    open my $file, '<', shift @{$self->_files};
+
+    my $file_name = shift @{$self->_files};
+    open my $file, '<', $file_name;
     local $/;
     my $message = <$file>;
     close $file;
     return {
         message => $message,
+        id => $file_name,
     };
 }
 

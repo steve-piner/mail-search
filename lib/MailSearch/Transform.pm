@@ -29,10 +29,11 @@ sub transform {
     my $self = shift;
     my $message = shift;
     my $email = Email::MIME->new($message->{message});
-    my $transform = $self->_tika->extract($message);
+    my $transform = $self->_tika->extract($message->{message});
     for ($email->header_names) {
         $transform->{headers}{$_} = [$email->header($_)];
     }
+    $transform->{id} = $message->{id};
 
     return $transform;
 }
