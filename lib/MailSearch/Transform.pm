@@ -12,6 +12,8 @@ use Moose;
 use Email::MIME;
 use MailSearch::Tika;
 
+with 'MailSearch::Roles::Transform'; 
+
 has _config => (
     is => 'ro',
     required => 1,

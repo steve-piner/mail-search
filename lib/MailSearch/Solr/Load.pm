@@ -11,6 +11,8 @@ use Moose;
 use HTTP::Tiny;
 use Carp 'croak';
 
+with 'MailSearch::Roles::Load';
+
 sub BUILD {
     my ($self, $args) = @_;
     croak "Parameter 'config' is required" unless exists $args->{config};

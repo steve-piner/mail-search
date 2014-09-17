@@ -9,6 +9,8 @@ use version; our $VERSION = qv('0.0.1');
 use namespace::autoclean;
 use Moose;
 
+with 'MailSearch::Roles::Fetch'; 
+
 has config => (
     is => 'ro',
     required => 1,

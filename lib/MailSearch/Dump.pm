@@ -10,6 +10,8 @@ use namespace::autoclean;
 use Moose;
 use Data::Printer;
 
+with 'MailSearch::Roles::Load';
+
 sub load {
     my $self = shift;
     my $transform = shift;
