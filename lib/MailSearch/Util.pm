@@ -26,6 +26,7 @@ use IO::Socket;
 sub slow_connect {
     my ($address, $seconds, $progress) = @_;
 
+    local $| = 1;
     my $socket = IO::Socket::INET->new($address);
     while (not defined $socket and $seconds > 0) {
         sleep 1;
