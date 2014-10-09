@@ -13,10 +13,10 @@ use Moose;
 
 use constant MTIME => 9;
 
-use constant MODE_MIX => 0;
+use constant MODE_FINISHED => 0;
 use constant MODE_FILES_ONLY => 1;
 use constant MODE_STATE_ONLY => 2;
-use constant MODE_FINISHED => 3;
+use constant MODE_MIX => MODE_FILES_ONLY | MODE_STATE_ONLY;
 
 with 'MailSearch::Roles::Fetch';
 
@@ -100,28 +100,36 @@ sub start {
 sub fetch {
     my $self = shift;
 
+    my $mode = $self->_mode;
+    my $file;
+    my $state;
+
 FETCH: {
-        my $mode = $self->_mode;
+        if ($mode & MODE_FILES_ONLY) {
+            $file = $self->_file;
+            if (not defined $file) {
+                if ($self->_fetch_file) {
+                    $file = $self->_file;
+                }
+                else {
+                    $self->_mode($mode ^= MODE_FILES_ONLY);
+                }
+            }
+        }
+
+        if ($mode & MODE_STATE_ONLY) {
+            $state = $self->_state;
+            if (not defined $state) {
+                if ($self->_fetch_state) {
+                    $state = $self->_state;
+                }
+                else {
+                    $self->_mode($mode ^= MODE_STATE_ONLY);
+                }
+            }
+        }
 
         if ($mode == MODE_MIX) {
-            my $file = $self->_file;
-            if (not defined $file) {
-                if (not $self->_fetch_file) {
-                    $self->_mode(MODE_STATE_ONLY);
-                    redo FETCH;
-                }
-                $file = $self->_file;
-            }
-
-            my $state = $self->_state;
-            if (not defined $state) {
-                if (not $self->_fetch_state) {
-                    $self->_mode(MODE_FILES_ONLY);
-                    redo FETCH;
-                }
-                $state = $self->_state;
-            }
-
             if ($state->{id} lt $file) {
                 # File mentioned in state has been deleted.
                 $self->_fetch_state or $self->_mode(MODE_FILES_ONLY);
@@ -148,7 +156,6 @@ FETCH: {
                 $self->_mode(MODE_FINISHED);
                 return;
             }
-            my $state = $self->_state;
             return $self->_return_deleted($state->{id});
         }
         elsif ($mode == MODE_FILES_ONLY) {
@@ -156,7 +163,6 @@ FETCH: {
                 $self->_mode(MODE_FINISHED);
                 return;
             }
-            my $file = $self->_file;
             $self->_write_state($file);
             return $self->_return_message($file);
         }
