@@ -154,14 +154,12 @@ FETCH: {
         elsif ($mode == MODE_STATE_ONLY) {
             if (not $self->_fetch_state) {
                 $self->_mode(MODE_FINISHED);
-                return;
             }
             return $self->_return_deleted($state->{id});
         }
         elsif ($mode == MODE_FILES_ONLY) {
             if (not $self->_fetch_file) {
                 $self->_mode(MODE_FINISHED);
-                return;
             }
             $self->_write_state($file);
             return $self->_return_message($file);
