@@ -31,7 +31,7 @@ has _write => (
 
 sub BUILD {
     my ($self, $args) = @_;
-    $args->{config}->must_have(__PACKAGE__, 'host', 'script path', 'fetch');
+    $args->{config}->must_have(__PACKAGE__, 'host', 'script path');
     $self->_config($args->{config}->section(__PACKAGE__));
 }
 
@@ -41,8 +41,9 @@ sub start {
     $config = $self->_config;
 
     $pid = open2($read, $write, 'ssh',
-        ($config->{'private key'} ? ('-i', $config->{'private key'}) : ()),
+        ($config->{'private key'} ? ('-i', glob $config->{'private key'}) : ()),
         $self->_config->{host},
+        $self->_config->{'perl path'} // 'perl',
         $self->_config->{'script path'},
     );
     $self->_pid($pid);

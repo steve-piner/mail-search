@@ -68,8 +68,13 @@ sub start {
     my ($old_state_file, $new_state_file);
 
     my $file_name = glob($self->_config->{'state file'});
-    eval { open $old_state_file, '<', $file_name };
-    $self->_old_state_file($@ ? undef : $old_state_file); #?; # Editor glitch.
+    if ($self->_config->{'always rebuild'}) {
+        $self->_old_state_file(undef);
+    }
+    else {
+        eval { open $old_state_file, '<', $file_name };
+        $self->_old_state_file($@ ? undef : $old_state_file); #?; # Editor glitch.
+    }
 
     $new_state_file = File::Temp->new(UNLINK => 0, DIR => dirname $file_name);
     $self->_new_state_file($new_state_file);

@@ -29,6 +29,8 @@ sub BUILD {
 sub run {
     my $self = shift;
 
+    STDOUT->autoflush(1);
+
     while (my $command = <>) {
         chomp $command;
 
